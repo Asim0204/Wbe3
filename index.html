@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>MiniChain</title>
+  <style>
+    body { font-family: sans-serif; margin: 2rem; }
+    #log { white-space: pre-wrap; background: #f5f5f5; padding: 1rem; height: 200px; overflow-y: scroll; }
+    button { margin: 0.5rem; }
+  </style>
+</head>
+<body>
+  <h1>MiniChain</h1>
+
+  <div>
+    <button id="genKey">Generate Key Pair</button>
+    <button id="showBalance">Show Balance</button>
+    <button id="createTx">Create Transaction</button>
+    <button id="mine">Mine Block</button>
+    <button id="initZK">Initialize ZK Proofs</button>
+    <button id="demoZK">Demo ZK Proof</button>
+    <button id="testMiniChain">Test MiniChain ZK</button>
+    <button id="checkFiles">Check ZK Files</button>
+    <button id="completeDemo">Complete Demo</button>
+    <button id="validateChain">Validate chainTip</button>
+    <button id="fullDemo">🎯 Complete System Demo</button>
+  </div>
+
+  <div id="log"></div>
+
+  <script type="module" src="main.js"></script>
+  <script type="module" src="zk_proof.js"></script>
+  <script type="module" src="minichain_zk.js"></script>
+  <script type="module" src="minichain_complete.js"></script>
+  <script type="module" src="chainTip_validation.js"></script>
+</body>
+</html>
