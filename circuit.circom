@@ -1,8 +1,7 @@
-pragma circom 2.0.0;
-
-include "circomlib/circuits/eddsa.circom";
-include "circomlib/circuits/mimc.circom";
-include "circomlib/circuits/bitify.circom";
+include "node_modules/circomlib/circuits/eddsa.circom";
+include "node_modules/circomlib/circuits/mimc.circom";
+include "node_modules/circomlib/circuits/bitify.circom";
+include "node_modules/circomlib/circuits/mux1.circom";
 
 // Merkle tree update proof component
 template MerkleUpdateProof(depth) {
@@ -72,13 +71,13 @@ template TransactionVerifier(depth, txFieldCount) {
     signal input newRoot;
     
     // Private inputs  
-    signal private input txFields[txFieldCount];
-    signal private input ownerPubKey[2];
-    signal private input sigR8[2];
-    signal private input sigS;
-    signal private input pathElements[depth];
-    signal private input pathIndices[depth];
-    signal private input oldLeaf;
+    signal input txFields[txFieldCount];
+    signal input ownerPubKey[2];
+    signal input sigR8[2];
+    signal input sigS;
+    signal input pathElements[depth];
+    signal input pathIndices[depth];
+    signal input oldLeaf;
     
     // EdDSA signature verification
     component eddsa = EdDSAVerifier();

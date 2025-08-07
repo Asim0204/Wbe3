@@ -1,0 +1,14 @@
+1,2,0,main.prevRoot
+2,3,0,main.newRoot
+3,4,0,main.signature
+4,5,0,main.message
+5,1,0,main.isValid
+6,6,1,main.constraint.in
+7,9,1,main.constraint.out
+8,7,1,main.constraint.inv
+9,2,2,main.rootDiff.in[0]
+10,3,2,main.rootDiff.in[1]
+11,10,2,main.rootDiff.out
+12,11,3,main.rootDiff.isz.in
+13,10,3,main.rootDiff.isz.out
+14,8,3,main.rootDiff.isz.inv
