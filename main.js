@@ -122,3 +122,32 @@ document.getElementById('showBalance').onclick = () => {
 
 // Initialize blockchain when page loads
 initBlockchain();
+
+// ZK Proof integration
+import { ZKProofSystem, demonstrateZKProofs } from './zk_proof.js';
+
+// Global ZK system
+window.zkSystem = null;
+
+// ZK Proof button handlers
+document.getElementById('initZK').onclick = async () => {
+  try {
+    log('Initializing ZK proof system...');
+    window.zkSystem = new ZKProofSystem();
+    await window.zkSystem.initialize();
+    log('✓ ZK proof system ready!');
+  } catch (error) {
+    log('Failed to initialize ZK system: ' + error.message);
+  }
+};
+
+document.getElementById('demoZK').onclick = async () => {
+  try {
+    log('Running ZK proof demonstration...');
+    const result = await demonstrateZKProofs();
+    log('✓ ZK proof demo completed successfully');
+    log('Proof valid: ' + result.isValid);
+  } catch (error) {
+    log('ZK demo failed: ' + error.message);
+  }
+};
