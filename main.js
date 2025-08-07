@@ -102,12 +102,43 @@ async function mineBlock() {
     hash = await sha256(JSON.stringify(header));
   } while (!hash.startsWith(difficulty));
 
-  chainTip = { ...chainTip, ...{ previousHash: hash, merkleRoot: mr, timestamp: Date.now(), nonce } };
+  // Generate ZK proof for the block if ZK system is available
+  if (window.miniChainZK && tx.zkProof) {
+    try {
+      // Verify the transaction's ZK proof before including in block
+      const isValid = await window.miniChainZK.verifyProof(tx.zkProof, tx.zkPublicSignals);
+      
+      if (isValid) {
+        // Add ZK proof to chainTip as you specified
+        chainTip.zkProof = tx.zkProof;
+        chainTip.publicSignals = tx.zkPublicSignals;
+        log('✅ ZK proof verified and added to block');
+      } else {
+        log('❌ ZK proof verification failed, mining without proof');
+      }
+    } catch (error) {
+      log('ZK proof verification error: ' + error.message);
+    }
+  }
+
+  chainTip = { 
+    ...chainTip, 
+    previousHash: hash, 
+    merkleRoot: mr, 
+    timestamp: Date.now(), 
+    nonce: nonce
+  };
+  
   // Update state: remove used UTXO, add new one
   state.utxos.delete(tx.inputs[0].txId + ':' + tx.inputs[0].index);
   state.utxos.set(hash + ':0', tx.outputs[0]);
 
   log(`Mined block ${hash} with nonce ${nonce}`);
+  
+  // Log ZK proof status
+  if (chainTip.zkProof) {
+    log('Block includes zero-knowledge proof for privacy');
+  }
 }
 
 // --- Button Hooks ---
@@ -118,6 +149,18 @@ document.getElementById('showBalance').onclick = () => {
   let total = 0;
   for (const out of state.utxos.values()) total += out.amount;
   log(`Current Balance: ${total}`);
+  
+  // Show chainTip with ZK proof info
+  log(`Chain Tip Hash: ${chainTip.previousHash?.substring(0, 16)}...`);
+  log(`Merkle Root: ${chainTip.merkleRoot?.substring(0, 16)}...`);
+  log(`Nonce: ${chainTip.nonce}`);
+  
+  if (chainTip.zkProof) {
+    log('✅ Block includes zero-knowledge proof');
+    log(`Public Signals: [${chainTip.publicSignals?.slice(0, 2).join(', ')}...]`);
+  } else {
+    log('❌ No zero-knowledge proof in current block');
+  }
 };
 
 // Initialize blockchain when page loads
@@ -125,7 +168,7 @@ initBlockchain();
 
 // ZK Proof integration
 import { ZKProofSystem, demonstrateZKProofs } from './zk_proof.js';
-import { MiniChainZK, integrateMiniChainProof } from './minichain_zk.js';
+import { MiniChainZK, integrateMiniChainProof, autoEnhanceTransactions } from './minichain_zk.js';
 
 // Global ZK system
 window.zkSystem = null;
@@ -133,10 +176,15 @@ window.zkSystem = null;
 // ZK Proof button handlers
 document.getElementById('initZK').onclick = async () => {
   try {
-    log('Initializing ZK proof system...');
-    window.zkSystem = new ZKProofSystem();
-    await window.zkSystem.initialize();
-    log('✓ ZK proof system ready!');
+    log('Initializing MiniChain ZK system...');
+    window.miniChainZK = new MiniChainZK();
+    await window.miniChainZK.initialize();
+    
+    // Auto-enhance transaction creation
+    autoEnhanceTransactions();
+    
+    log('✓ MiniChain ZK system ready!');
+    log('✓ Transactions will now include zero-knowledge proofs');
   } catch (error) {
     log('Failed to initialize ZK system: ' + error.message);
   }

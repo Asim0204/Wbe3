@@ -134,42 +134,42 @@ function enhanceCreateTransaction() {
             // Create regular transaction
             const tx = await originalCreateTransaction();
             
-            // Initialize ZK system if needed
-            if (!window.miniChainZK) {
-                window.miniChainZK = new MiniChainZK();
-                await window.miniChainZK.initialize();
+            // Only add ZK proof if system is initialized
+            if (window.miniChainZK && window.miniChainZK.initialized) {
+                // Extract transaction data for ZK proof
+                const txFields = [
+                    "sender_address",  // Would be derived from actual sender
+                    tx.outputs[0].address, // recipient
+                    tx.outputs[0].amount.toString() // amount
+                ];
+                
+                // Mock signature data (in real implementation, use actual signature)
+                const ownerPubKey = ["123456789012345678901234567890", "987654321098765432109876543210"];
+                const sigR = ["555555555555555555555555555555", "777777777777777777777777777777"];
+                const sigS = "999999999999999999999999999999";
+                
+                // Calculate new root (simplified)
+                const updatedRoot = await sha256(JSON.stringify(tx) + Date.now());
+                
+                // Generate ZK proof using your exact pattern
+                const { proof, publicSignals } = await window.miniChainZK.generateProof(
+                    { root: chainTip.previousHash || "0".repeat(64) },
+                    updatedRoot,
+                    txFields,
+                    ownerPubKey,
+                    sigR,
+                    sigS
+                );
+                
+                // Add ZK proof to transaction
+                tx.zkProof = proof;
+                tx.zkPublicSignals = publicSignals;
+                
+                log('✅ Zero-knowledge proof added to transaction');
+            } else {
+                log('ZK system not initialized, creating regular transaction');
             }
             
-            // Extract transaction data
-            const txFields = [
-                "sender_address",  // Would be derived from actual sender
-                tx.outputs[0].address, // recipient
-                tx.outputs[0].amount.toString() // amount
-            ];
-            
-            // Mock signature data (in real implementation, use actual signature)
-            const ownerPubKey = ["123456789012345678901234567890", "987654321098765432109876543210"];
-            const sigR = ["555555555555555555555555555555", "777777777777777777777777777777"];
-            const sigS = "999999999999999999999999999999";
-            
-            // Calculate new root (simplified)
-            const updatedRoot = await sha256(JSON.stringify(tx) + Date.now());
-            
-            // Generate ZK proof
-            const { proof, publicSignals } = await window.miniChainZK.generateProof(
-                { root: chainTip.previousHash },
-                updatedRoot,
-                txFields,
-                ownerPubKey,
-                sigR,
-                sigS
-            );
-            
-            // Add ZK proof to transaction
-            tx.zkProof = proof;
-            tx.zkPublicSignals = publicSignals;
-            
-            log('✅ Zero-knowledge proof added to transaction');
             return tx;
             
         } catch (error) {
@@ -180,5 +180,13 @@ function enhanceCreateTransaction() {
     };
 }
 
+// Auto-enhance createTransaction when ZK system is ready
+function autoEnhanceTransactions() {
+    if (typeof window !== 'undefined' && window.createTransaction) {
+        enhanceCreateTransaction();
+        log('✅ Transaction creation enhanced with ZK proofs');
+    }
+}
+
 // Export for use
-export { MiniChainZK, integrateMiniChainProof, enhanceCreateTransaction };
+export { MiniChainZK, integrateMiniChainProof, enhanceCreateTransaction, autoEnhanceTransactions };
