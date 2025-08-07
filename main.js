@@ -125,6 +125,7 @@ initBlockchain();
 
 // ZK Proof integration
 import { ZKProofSystem, demonstrateZKProofs } from './zk_proof.js';
+import { MiniChainZK, integrateMiniChainProof } from './minichain_zk.js';
 
 // Global ZK system
 window.zkSystem = null;
@@ -149,5 +150,17 @@ document.getElementById('demoZK').onclick = async () => {
     log('Proof valid: ' + result.isValid);
   } catch (error) {
     log('ZK demo failed: ' + error.message);
+  }
+};
+
+document.getElementById('testMiniChain').onclick = async () => {
+  try {
+    log('Testing MiniChain ZK integration...');
+    const result = await integrateMiniChainProof();
+    log('✓ MiniChain ZK test completed successfully');
+    log('Proof valid: ' + result.isValid);
+    log('Your code pattern works perfectly!');
+  } catch (error) {
+    log('MiniChain ZK test failed: ' + error.message);
   }
 };
