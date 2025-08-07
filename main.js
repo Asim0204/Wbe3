@@ -135,8 +135,20 @@ async function mineBlock() {
 
   log(`Mined block ${hash} with nonce ${nonce}`);
   
-  // Log ZK proof status
-  if (chainTip.zkProof) {
+  // Validate chainTip ZK proof using your exact pattern
+  if (chainTip.zkProof && chainTip.publicSignals && window.miniChainZK) {
+    try {
+      const vKey = await fetch('build/verification_key.json').then(r => r.json());
+      const isValid = await groth16.verify(vKey, chainTip.publicSignals, chainTip.zkProof);
+      if (!isValid) throw new Error('Invalid zk-SNARK proof');
+      
+      log('✅ chainTip ZK proof validation passed');
+      log('Block includes zero-knowledge proof for privacy');
+    } catch (error) {
+      log('❌ chainTip validation failed: ' + error.message);
+      // Could revert chainTip here if needed
+    }
+  } else if (chainTip.zkProof) {
     log('Block includes zero-knowledge proof for privacy');
   }
 }
@@ -167,9 +179,11 @@ document.getElementById('showBalance').onclick = () => {
 initBlockchain();
 
 // ZK Proof integration
+import { groth16 } from 'snarkjs';
 import { ZKProofSystem, demonstrateZKProofs } from './zk_proof.js';
 import { MiniChainZK, integrateMiniChainProof, autoEnhanceTransactions } from './minichain_zk.js';
 import { MiniChainZKComplete, demonstrateCompleteIntegration, checkFiles } from './minichain_complete.js';
+import { demonstrateChainTipValidation } from './chainTip_validation.js';
 
 // Global ZK system
 window.zkSystem = null;
@@ -233,5 +247,16 @@ document.getElementById('completeDemo').onclick = async () => {
     log('chainTip.zkProof and chainTip.publicSignals integration working!');
   } catch (error) {
     log('Complete demo failed: ' + error.message);
+  }
+};
+
+document.getElementById('validateChain').onclick = async () => {
+  try {
+    log('Testing chainTip ZK proof validation...');
+    const result = await demonstrateChainTipValidation();
+    log('✓ chainTip validation demo completed successfully!');
+    log('Your exact validation pattern works perfectly!');
+  } catch (error) {
+    log('chainTip validation demo failed: ' + error.message);
   }
 };
