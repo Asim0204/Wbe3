@@ -1,0 +1,31 @@
+{
+  "name": "minichain-zk",
+  "version": "1.0.0",
+  "description": "Zero-knowledge proof circuit for MiniChain blockchain transactions",
+  "main": "index.js",
+  "scripts": {
+    "compile": "circom circuit.circom --r1cs --wasm --sym --c",
+    "compile-debug": "circom circuit.circom --r1cs --wasm --sym --c --O0",
+    "setup": "snarkjs powersoftau new bn128 12 pot12_0000.ptau && snarkjs powersoftau contribute pot12_0000.ptau pot12_0001.ptau --name='First contribution' -e='random text' && snarkjs powersoftau prepare phase2 pot12_0001.ptau pot12_final.ptau && snarkjs groth16 setup circuit.r1cs pot12_final.ptau circuit_0000.zkey && snarkjs zkey contribute circuit_0000.zkey circuit_0001.zkey --name='First contribution' -e='more random text' && snarkjs zkey export verificationkey circuit_0001.zkey verification_key.json",
+    "prove": "snarkjs groth16 prove circuit_0001.zkey witness.wtns proof.json public.json",
+    "verify": "snarkjs groth16 verify verification_key.json public.json proof.json"
+  },
+  "keywords": [
+    "circom",
+    "zero-knowledge",
+    "blockchain",
+    "zk-snark",
+    "eddsa",
+    "merkle-tree"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "circomlib": "^2.0.5",
+    "snarkjs": "^0.7.0",
+    "circom": "^2.1.6"
+  },
+  "dependencies": {
+    "ffjavascript": "^0.2.60"
+  }
+}
