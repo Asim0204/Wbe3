@@ -169,6 +169,7 @@ initBlockchain();
 // ZK Proof integration
 import { ZKProofSystem, demonstrateZKProofs } from './zk_proof.js';
 import { MiniChainZK, integrateMiniChainProof, autoEnhanceTransactions } from './minichain_zk.js';
+import { MiniChainZKComplete, demonstrateCompleteIntegration, checkFiles } from './minichain_complete.js';
 
 // Global ZK system
 window.zkSystem = null;
@@ -210,5 +211,27 @@ document.getElementById('testMiniChain').onclick = async () => {
     log('Your code pattern works perfectly!');
   } catch (error) {
     log('MiniChain ZK test failed: ' + error.message);
+  }
+};
+
+document.getElementById('checkFiles').onclick = async () => {
+  try {
+    log('Checking ZK circuit files...');
+    await checkFiles();
+    log('✓ File check completed');
+  } catch (error) {
+    log('File check failed: ' + error.message);
+  }
+};
+
+document.getElementById('completeDemo').onclick = async () => {
+  try {
+    log('Running complete MiniChain ZK integration demo...');
+    const result = await demonstrateCompleteIntegration();
+    log('✓ Complete demo successful!');
+    log('Proof valid: ' + result.isValid);
+    log('chainTip.zkProof and chainTip.publicSignals integration working!');
+  } catch (error) {
+    log('Complete demo failed: ' + error.message);
   }
 };
